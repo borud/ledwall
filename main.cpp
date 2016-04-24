@@ -86,7 +86,7 @@ int main() {
                 started = true;
             }
             buf[off] = pc.getc();
-            
+
             off++;
 
 
@@ -100,7 +100,7 @@ int main() {
                 continue;
             }
 #endif
-                
+
             if (off == 3) {
                 strip.setPixelColor(count++, buf[0], buf[1], buf[2]);
                 off = 0;
