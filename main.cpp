@@ -77,8 +77,8 @@ int main() {
     strip.begin();
     blank();
 
-    
     Timer t;
+
     while(true) {
         while (pc.readable()) {
             if (! started) {
