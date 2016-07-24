@@ -8,7 +8,7 @@ and in case it would be useful for someone else.
 
 In order to use this you need to install the GCC compiler for the ARM
 targets.  Assuming that you have [Homebrew](http://brew.sh/) installed
-you can run the following commands:
+you can run the following commands (*cut and paste should be okay*):
 
     brew tap PX4/homebrew-px4
     brew update

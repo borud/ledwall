@@ -12,7 +12,9 @@
  *
  */
 
+#include <stdlib.h>
 #include <mbed.h>
+#include <EthernetNetIf.h>
 #include "LPD8806.h"
 
 // Non configurables
@@ -55,19 +57,54 @@ void log_config() {
 
 void blank() {
     for (int i = 0; i < NUM_LEDS; i++) {
-        strip.setPixelColor(i, 0x80, 0x80, 0x80);
+        strip.setPixelColor(i, 0x0, 0x0, 0x0);
     }
     strip.show();
 }
 
-int main() {
-    uint8_t buf[3] = {0,0,0};
-    int off = 0;
-    int count = 0;
-    bool started = false;
+void loop(void) {
+    static bool first = true;
+
+    if (first) {
+        first = false;
+
+        for (int i = 0; i < 20; i++) {
+            strip.setPixelColor(i, 255, 255, 255);
+            strip.setPixelColor(i + (7*COLS), 255, 255, 255);
+        }
+        
+        strip.show();
+        pc.printf("*** Showing init pattern");
+
+        wait_ms(2000);
+    }
+
     
+    // Red
+    for (int i = 0; i < NUM_LEDS; i++) {
+        strip.setPixelColor(i, 127, 0, 0);
+    }
+    strip.show();
+    wait_ms(500); blank(); wait_ms(100);
+
+    // Green
+    for (int i = 0; i < NUM_LEDS; i++) {
+        strip.setPixelColor(i, 0, 127, 0);
+    }
+    strip.show();
+    wait_ms(500); blank(); wait_ms(100);
+
+    // Blue
+    for (int i = 0; i < NUM_LEDS; i++) {
+        strip.setPixelColor(i, 0, 0, 127);
+    }
+    strip.show();
+    wait_ms(500); blank(); wait_ms(100);
+}
+
+int main() {
+    // Set up serial port
     pc.baud(BAUD_RATE);
-    led1 = 0;
 
     // Log some of the config
     log_config();
@@ -77,43 +114,7 @@ int main() {
     strip.begin();
     blank();
 
-    Timer t;
-
-    while(true) {
-        while (pc.readable()) {
-            if (! started) {
-                t.start();
-                started = true;
-            }
-            buf[off] = pc.getc();
-
-            off++;
-
-
-#undef FF_ABORT
-#ifdef FF_ABORT
-            // If we got a 0xFF byte it means we should abort and reset.            
-            if (buf[off] == 0xFF) {
-                count = 0;
-                off = 0;
-                pc.printf("ABR\n");
-                continue;
-            }
-#endif
-
-            if (off == 3) {
-                strip.setPixelColor(count++, buf[0], buf[1], buf[2]);
-                off = 0;
-                
-                if (count == NUM_LEDS) {
-                    strip.show();
-                    t.stop();
-                    count = 0;                        
-                    pc.printf("Time = %d us\n", t.read_us());
-                    t.reset();
-                    started = false;
-                }
-            }
-        }
+    while (true) {
+        loop();
     }
 }
